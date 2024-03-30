@@ -1,23 +1,22 @@
-using System.Net.Http;
+﻿using System.Net.Http;
 using JetBrains.Annotations;
 
 namespace UnityHttpServer.Routing
 {
     /// <summary>
-    /// Marks a method to respond to HTTP GET requests
+    /// Marks a method to respond to HTTP POST requests
     /// </summary>
     [PublicAPI]
-    public class GetConsumerAttribute : StaticMethodConsumerAttribute
+    public class PostConsumerAttribute : StaticMethodConsumerAttribute
     {
-        public override HttpMethod Method => HttpMethod.Get;
+        public override HttpMethod Method => HttpMethod.Post;
         public override string Path { get; }
 
         /// <summary>
-        /// Marks a method to respond to HTTP GET requests
+        /// Marks a method to respond to HTTP POST requests
         /// </summary>
         /// <param name="path">The route the method will respond to</param>
-        public GetConsumerAttribute(string path) 
+        public PostConsumerAttribute(string path) 
             => Path = path;
-
     }
 }
