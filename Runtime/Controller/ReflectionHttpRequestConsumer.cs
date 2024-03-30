@@ -8,15 +8,15 @@ using UnityHttpServer.Routing;
 
 namespace UnityHttpServer.Controller
 {
-    public class ReflectionControllerMethod : IControllerMethod
+    internal class ReflectionHttpRequestConsumer : IHttpRequestConsumer
     {
-        private readonly RouteAttribute RouteAttribute;
+        private readonly ConsumerAttribute _consumerAttribute;
         private readonly MethodInfo MethodInfo;
         private readonly object Controller;
 
-        public static bool TryMake(RouteAttribute routeAttribute, object controller, MethodInfo methodInfo, out ReflectionControllerMethod controllerMethod)
+        public static bool TryMake(ConsumerAttribute consumerAttribute, object controller, MethodInfo methodInfo, out ReflectionHttpRequestConsumer httpRequestConsumer)
         {
-            controllerMethod = null;
+            httpRequestConsumer = null;
 
             if (methodInfo.ReturnType != typeof(void)
                 && ! typeof(HttpResponse).IsAssignableFrom(methodInfo.ReturnType))
@@ -25,13 +25,13 @@ namespace UnityHttpServer.Controller
             if (methodInfo.GetParameters().Any(parameter => parameter.IsIn))
                 return false;
 
-            controllerMethod = new ReflectionControllerMethod(routeAttribute, controller, methodInfo);
+            httpRequestConsumer = new ReflectionHttpRequestConsumer(consumerAttribute, controller, methodInfo);
             return true;
         }
 
-        private ReflectionControllerMethod(RouteAttribute routeAttribute, object controller, MethodInfo methodInfo)
+        private ReflectionHttpRequestConsumer(ConsumerAttribute consumerAttribute, object controller, MethodInfo methodInfo)
         {
-            RouteAttribute = routeAttribute;
+            _consumerAttribute = consumerAttribute;
             MethodInfo = methodInfo;
             Controller = controller;
         }
@@ -39,22 +39,14 @@ namespace UnityHttpServer.Controller
 
         public bool Match(HttpRequest request)
         {
-            return RouteAttribute.MatchRequest(request);
+            return _consumerAttribute.MatchRequest(request);
         }
 
         public HttpResponse Consume(HttpRequest request)
         {
             object[] parameters = CreateReflectionParameters(MethodInfo, request);
-            object output;
-            try
-            {
-                output = MethodInfo.Invoke(Controller, parameters);
-            }
-            catch (Exception e)
-            {
-                Debug.LogException(e);
-                return HttpStatusCode.InternalServerError;
-            }
+
+            var output = MethodInfo.Invoke(Controller, parameters);
             
             bool isMethodVoid = MethodInfo.ReturnType == typeof(void);
             if (isMethodVoid)

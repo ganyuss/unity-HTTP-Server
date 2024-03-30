@@ -7,40 +7,50 @@ using UnityHttpServer.Controller;
 
 namespace UnityHttpServer
 {
+    /// <summary>
+    /// Listen for HTTP requests on the given port, and forwards requests
+    /// to the <see cref="IHttpRequestConsumer"/>s of the given
+    /// controller.  
+    /// </summary>
     [PublicAPI]
     public class HttpServer : IDisposable
     {
         private readonly HttpListener HttpListener = new HttpListener();
-        private readonly IHttpController _controller;
+        private readonly IHttpControllerWrapper _controllerWrapper;
         [CanBeNull] 
         private readonly ILogger Logger;
 
         private readonly int Port;
         
         public bool Running { get; private set; }
-    
+        [NotNull]
+        private TaskCompletionSource<bool> RunningTask = new TaskCompletionSource<bool>();
+        
         public HttpServer(object controller, int port) : this(controller, port, Debug.unityLogger)
         {
         }
         
-        internal HttpServer(IHttpController controller, int port)
-            : this(controller, port, Debug.unityLogger)
+        internal HttpServer(IHttpControllerWrapper controllerWrapper, int port)
+            : this(controllerWrapper, port, Debug.unityLogger)
         {
         }
 
-        internal HttpServer(object controller, int port, [CanBeNull] ILogger logger)
-            : this(new HttpControllerWrapper(controller, logger), port, logger)
+        public HttpServer(object controller, int port, [CanBeNull] ILogger logger)
+            : this(new HttpControllerWrapperWrapper(controller, logger), port, logger)
         {
         }
         
-        internal HttpServer(IHttpController controller, int port, [CanBeNull] ILogger logger)
+        internal HttpServer(IHttpControllerWrapper controllerWrapper, int port, [CanBeNull] ILogger logger)
         {
-            _controller = controller;
+            _controllerWrapper = controllerWrapper;
             Port = port;
             HttpListener.Prefixes.Add($"http://*:{port}/");
             Logger = logger;
         }
 
+        /// <summary>
+        /// Allows the server to receive the incoming requests, on the given port.
+        /// </summary>
         public void Start()
         {
             Running = true;
@@ -48,6 +58,7 @@ namespace UnityHttpServer
             
             Logger?.Log($"Start listening on port {Port}...");
 
+            RunningTask = new TaskCompletionSource<bool>();
             ListenAsync()
                 .ListenForErrors();
         }
@@ -58,7 +69,16 @@ namespace UnityHttpServer
             {
                 try
                 {
-                    var httpListenerContext = await HttpListener.GetContextAsync();
+                    var runningTask = RunningTask.Task;
+                    var getContextTask = HttpListener.GetContextAsync();
+
+                    var completedTask = await Task.WhenAny(runningTask, getContextTask);
+
+                    if (completedTask == runningTask)
+                        // Server stopped
+                        return;
+                    
+                    var httpListenerContext = getContextTask.Result;
                     ConsumeRequest(httpListenerContext);
                 }
                 catch (Exception e)
@@ -72,11 +92,23 @@ namespace UnityHttpServer
         {
             Logger?.Log($"Request received for URI \"{httpListenerContext.Request.Url}\"");
             
+            HttpResponse response;
             var request = new HttpRequest(httpListenerContext.Request);
-            if (_controller.TryConsume(request, out var response))
+            
+            try
             {
+                if (_controllerWrapper.TryConsume(request, out response))
+                {
+                    response.Apply(httpListenerContext.Response);
+                    Logger?.Log($"Consumer found, code {response.StatusCode}");
+                    return;
+                }
+            }
+            catch (Exception e)
+            {
+                Logger?.Log(LogType.Exception, e);
+                response = HttpStatusCode.InternalServerError;
                 response.Apply(httpListenerContext.Response);
-                Logger?.Log($"Consumer found, code {response.StatusCode}");
                 return;
             }
             
@@ -88,6 +120,7 @@ namespace UnityHttpServer
 
         public void Stop()
         {
+            RunningTask.SetResult(true);
             HttpListener.Stop();
             Running = false;
             

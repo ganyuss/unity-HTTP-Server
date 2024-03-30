@@ -9,6 +9,9 @@ using JetBrains.Annotations;
 
 namespace UnityHttpServer
 {
+    /// <summary>
+    /// Represents the input of an HTTP request.
+    /// </summary>
     [PublicAPI]
     public class HttpRequest
     {
@@ -23,44 +26,55 @@ namespace UnityHttpServer
             ContentStream = listenerRequest.InputStream;
 
             Cookies = listenerRequest.Cookies.Cast<Cookie>().ToArray();
-            KeepAlive = listenerRequest.KeepAlive;
             ProtocolVersion = listenerRequest.ProtocolVersion;
-            AcceptedTypes = listenerRequest.AcceptTypes;
         }
         
+        /// <summary>
+        /// The input HTTP method
+        /// </summary>
         public HttpMethod Method { get; }
+        /// <summary>
+        /// The request URI
+        /// </summary>
         public Uri Uri { get; }
+        /// <summary>
+        /// The request headers
+        /// </summary>
         public IReadOnlyDictionary<string, string> Headers { get; }
         
+        /// <summary>
+        /// The request content
+        /// </summary>
         private Stream ContentStream { get; }
+        /// <summary>
+        /// The request content encoding
+        /// </summary>
         private System.Text.Encoding ContentEncoding { get; }
         
+        /// <summary>
+        /// The request cookies
+        /// </summary>
         public Cookie[] Cookies { get; }
-        public bool KeepAlive { get; }
+        /// <summary>
+        /// The request protocol version
+        /// </summary>
         public Version ProtocolVersion { get; }
-        [CanBeNull] public string[] AcceptedTypes { get; }
 
-        
+        /// <summary>
+        /// Returns the content of the request as a string
+        /// </summary>
+        /// <seealso cref="ContentStream"/>
         public async Task<string> GetStringContentAsync()
         {
             StreamReader reader = new StreamReader(ContentStream, ContentEncoding);
             return await reader.ReadToEndAsync();
         }
 
+        /// <inheritdoc cref="GetStringContentAsync"/>
         public string GetStringContent()
         {
             StreamReader reader = new StreamReader(ContentStream, ContentEncoding);
             return reader.ReadToEnd();
         }
-        
-        /*
-        Debug.LogFormat("Local end point: {0}", request.LocalEndPoint);
-        Debug.LogFormat("Remote end point: {0}", request.RemoteEndPoint);
-        Debug.LogFormat("Is local? {0}", request.IsLocal);
-        Debug.LogFormat("HTTP method: {0}", request.HttpMethod);
-        Debug.LogFormat("Protocol version: {0}", request.ProtocolVersion);
-        Debug.LogFormat("Is authenticated: {0}", request.IsAuthenticated);
-        Debug.LogFormat("Is secure: {0}", request.IsSecureConnection);
-        */
     }
 }

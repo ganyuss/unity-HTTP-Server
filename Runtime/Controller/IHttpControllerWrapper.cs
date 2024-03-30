@@ -1,6 +1,6 @@
 ﻿namespace UnityHttpServer.Controller
 {
-    internal interface IHttpController
+    internal interface IHttpControllerWrapper
     {
         public bool TryConsume(HttpRequest request, out HttpResponse response);
     }

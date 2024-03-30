@@ -4,6 +4,9 @@ using System.Threading.Tasks;
 
 namespace UnityHttpServer
 {
+    /// <summary>
+    /// An <see cref="IHttpResponseContent"/> wrapping a string.
+    /// </summary>
     public class StringHttpResponseContent : IHttpResponseContent
     {
         public string Content { get; }

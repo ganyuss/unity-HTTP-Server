@@ -4,7 +4,7 @@ using JetBrains.Annotations;
 namespace UnityHttpServer.Routing
 {
     [PublicAPI]
-    public abstract class StaticMethodRouteAttribute : RouteAttribute
+    public abstract class StaticMethodConsumerAttribute : ConsumerAttribute
     {
         public abstract HttpMethod Method { get; }
         public abstract string Path { get; }

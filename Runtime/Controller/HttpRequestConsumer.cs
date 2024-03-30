@@ -3,13 +3,16 @@ using JetBrains.Annotations;
 
 namespace UnityHttpServer.Controller
 {
+    /// <summary>
+    /// Simple implementation of <see cref="IHttpRequestConsumer"/>.
+    /// </summary>
     [PublicAPI]
-    public class ControllerMethod : IControllerMethod
+    public class HttpRequestConsumer : IHttpRequestConsumer
     {
         private readonly Func<HttpRequest, bool> MatchDelegate;
         private readonly Func<HttpRequest, HttpResponse> ConsumeDelegate;
 
-        public ControllerMethod([NotNull] Func<HttpRequest, bool> matchDelegate, 
+        public HttpRequestConsumer([NotNull] Func<HttpRequest, bool> matchDelegate, 
             [NotNull] Func<HttpRequest, HttpResponse> consumeDelegate)
         {
             MatchDelegate = matchDelegate;

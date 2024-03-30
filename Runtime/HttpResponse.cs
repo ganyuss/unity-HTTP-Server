@@ -5,20 +5,43 @@ using JetBrains.Annotations;
 
 namespace UnityHttpServer
 {
+    /// <summary>
+    /// Represents the output of an HTTP request, sent back to the client.
+    /// </summary>
     [PublicAPI]
     public class HttpResponse
     {
+        /// <summary>
+        /// The status code of the response.
+        /// </summary>
+        /// <seeAlso cref="HttpStatusCode"/>
         public int StatusCode { get; }
+        /// <summary>
+        /// The status description of the request, inferred from the <see cref="StatusCode"/>.
+        /// </summary>
         public string StatusDescription => Enum.GetName(typeof(HttpStatusCode), StatusCode) ?? string.Empty;
         
+        /// <summary>
+        /// The cookies of the response.
+        /// </summary>
         public List<Cookie> Cookies { get; } = new List<Cookie>();
+        /// <summary>
+        /// The headers of the response.
+        /// </summary>
         public Dictionary<string, string> Headers { get; } = new Dictionary<string, string>();
         
+        /// <summary>
+        /// The content of the response
+        /// </summary>
         public IHttpResponseContent Content { get; set; } = new EmptyHttpResponse();
         
+        /// <summary>
+        /// If specified, will set the HTTP "Location" header of the response.
+        /// Used for redirections, usually with <see cref="HttpStatusCode.Redirect">
+        /// HttpStatusCode.Redirect</see>.
+        /// </summary>
         [CanBeNull] 
         public string RedirectionLocation { get; set; }
-        public bool KeepAlive { get; set; }
         
         public HttpResponse(HttpStatusCode responseCode)
         {
@@ -44,7 +67,6 @@ namespace UnityHttpServer
                 listenerResponse.AddHeader(header.Key, header.Value);
             
             listenerResponse.RedirectLocation = RedirectionLocation;
-            listenerResponse.KeepAlive = KeepAlive;
 
             listenerResponse.ContentLength64 = Content.ContentSize;
             listenerResponse.ContentEncoding = Content.ContentEncoding;

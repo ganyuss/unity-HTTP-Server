@@ -3,6 +3,9 @@ using System.Threading.Tasks;
 
 namespace UnityHttpServer
 {
+    /// <summary>
+    /// An empty <see cref="IHttpResponseContent"/>.
+    /// </summary>
     public class EmptyHttpResponse : IHttpResponseContent
     {
         public long ContentSize => 0;
