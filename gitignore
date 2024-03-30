@@ -1,0 +1,16 @@
+build*/
+
+# Object files
+*.o
+*.lib
+*.so
+*.lo
+*.la
+*.pyc
+
+# Temp files
+*.swp
+*~
+
+# Node modules
+**/node_modules
