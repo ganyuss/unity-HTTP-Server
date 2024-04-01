@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using System.Threading.Tasks;
 
-namespace UnityHttpServer
+namespace UnityHttpServer.ResponseContent
 {
     /// <summary>
     /// An empty <see cref="IHttpResponseContent"/>.

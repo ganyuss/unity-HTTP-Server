@@ -7,6 +7,7 @@ using JetBrains.Annotations;
 
 namespace UnityHttpServer.ResponseContent
 {
+    [PublicAPI]
     public class FileHttpResponseContent : IHttpResponseContent
     {
         public string ContentType { get; }

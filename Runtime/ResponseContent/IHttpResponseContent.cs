@@ -2,7 +2,7 @@
 using System.Text;
 using System.Threading.Tasks;
 
-namespace UnityHttpServer
+namespace UnityHttpServer.ResponseContent
 {
     /// <summary>
     /// Represents the content of an HTTP response, to be sent asynchronously.

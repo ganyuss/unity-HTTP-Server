@@ -1,8 +1,9 @@
 ﻿using System.IO;
 using System.Text;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 
-namespace UnityHttpServer
+namespace UnityHttpServer.ResponseContent
 {
     /// <summary>
     /// An <see cref="IHttpResponseContent"/> wrapping a string.
@@ -14,7 +15,7 @@ namespace UnityHttpServer
         public long ContentSize => Encoding.UTF8.GetBytes(Content).Length;
         public string ContentType { get; }
         
-        public StringHttpResponseContent(string content, string contentType = System.Net.Mime.MediaTypeNames.Text.Plain)
+        public StringHttpResponseContent([NotNull] string content, [NotNull] string contentType = System.Net.Mime.MediaTypeNames.Text.Plain)
         {
             Content = content;
             ContentType = contentType;

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using UnityHttpServer.ResponseContent;
 
 namespace UnityHttpServer
 {
