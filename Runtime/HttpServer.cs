@@ -79,7 +79,7 @@ namespace UnityHttpServer
                         return;
                     
                     var httpListenerContext = getContextTask.Result;
-                    ConsumeRequest(httpListenerContext);
+                    await ConsumeRequestAsync(httpListenerContext);
                 }
                 catch (Exception e)
                 {
@@ -88,7 +88,7 @@ namespace UnityHttpServer
             }
         }
 
-        private void ConsumeRequest(HttpListenerContext httpListenerContext)
+        private async Task ConsumeRequestAsync(HttpListenerContext httpListenerContext)
         {
             Logger?.Log($"Request received for URI \"{httpListenerContext.Request.Url}\"");
             
@@ -99,7 +99,7 @@ namespace UnityHttpServer
             {
                 if (_controllerWrapper.TryConsume(request, out response))
                 {
-                    response.Apply(httpListenerContext.Response);
+                    await response.ApplyAsync(httpListenerContext.Response);
                     Logger?.Log($"Consumer found, code {response.StatusCode}");
                     return;
                 }
@@ -108,13 +108,13 @@ namespace UnityHttpServer
             {
                 Logger?.Log(LogType.Exception, e);
                 response = HttpStatusCode.InternalServerError;
-                response.Apply(httpListenerContext.Response);
+                await response.ApplyAsync(httpListenerContext.Response);
                 return;
             }
             
             Logger?.Log(LogType.Warning, "No consumer found, returning 404");
             response = HttpStatusCode.NotFound;
-            response.Apply(httpListenerContext.Response);
+            await response.ApplyAsync(httpListenerContext.Response);
         }
 
 

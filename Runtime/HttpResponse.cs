@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 
 namespace UnityHttpServer
@@ -55,7 +56,7 @@ namespace UnityHttpServer
         
         public static implicit operator HttpResponse(HttpStatusCode statusCode) => new HttpResponse(statusCode);
 
-        internal void Apply(HttpListenerResponse listenerResponse)
+        internal async Task ApplyAsync(HttpListenerResponse listenerResponse)
         {
             listenerResponse.StatusCode = StatusCode;
             listenerResponse.StatusDescription = StatusDescription;
@@ -69,10 +70,13 @@ namespace UnityHttpServer
             listenerResponse.RedirectLocation = RedirectionLocation;
 
             listenerResponse.ContentLength64 = Content.ContentSize;
+            listenerResponse.SendChunked = listenerResponse.ContentLength64 > 256;
             listenerResponse.ContentEncoding = Content.ContentEncoding;
             listenerResponse.ContentType = Content.ContentType;
             
-            Content.WriteToStreamAsync(listenerResponse.OutputStream);
+            await Content.WriteToStreamAsync(listenerResponse.OutputStream);
+            
+            await listenerResponse.OutputStream.FlushAsync();
             listenerResponse.OutputStream.Close();
         }
     }
