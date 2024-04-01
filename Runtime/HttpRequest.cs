@@ -27,6 +27,13 @@ namespace UnityHttpServer
 
             Cookies = listenerRequest.Cookies.Cast<Cookie>().ToArray();
             ProtocolVersion = listenerRequest.ProtocolVersion;
+            AcceptTypes = listenerRequest.AcceptTypes;
+            
+            if (listenerRequest.Headers.AllKeys.Contains("Accept-Encoding"))
+                AcceptEncoding = listenerRequest.Headers["Accept-Encoding"]
+                    .Split(",")
+                    .Select(s => s.Trim())
+                    .ToArray();
         }
         
         /// <summary>
@@ -59,6 +66,18 @@ namespace UnityHttpServer
         /// The request protocol version
         /// </summary>
         public Version ProtocolVersion { get; }
+        
+        /// <summary>
+        /// The accepted mime types for the response
+        /// </summary>
+        [CanBeNull]
+        public string[] AcceptTypes { get; }
+        
+        /// <summary>
+        /// The accepted encodings for the response
+        /// </summary>
+        [CanBeNull]
+        public string[] AcceptEncoding { get; }
 
         /// <summary>
         /// Returns the content of the request as a string
