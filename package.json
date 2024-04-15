@@ -1,7 +1,7 @@
 {
   "name": "com.ganyuss.unity-http-server",
   "displayName": "Unity HTTP Server",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "unity": "2019.2",
   "keywords": ["http", "web", "server"],
   "description": "This package lets you easily create a HTTP server in your Unity application."

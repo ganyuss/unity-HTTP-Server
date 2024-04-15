@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 
 namespace UnityHttpServer.Controller
@@ -25,9 +26,9 @@ namespace UnityHttpServer.Controller
             return MatchDelegate.Invoke(request);
         }
 
-        public HttpResponse Consume(HttpRequest request)
+        public Task<HttpResponse> ConsumeAsync(HttpRequest request)
         {
-            return ConsumeDelegate.Invoke(request);
+            return Task.FromResult(ConsumeDelegate.Invoke(request));
         }
     }
 }

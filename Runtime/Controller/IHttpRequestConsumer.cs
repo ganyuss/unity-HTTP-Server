@@ -1,4 +1,5 @@
-﻿using JetBrains.Annotations;
+﻿using System.Threading.Tasks;
+using JetBrains.Annotations;
 
 namespace UnityHttpServer.Controller
 {
@@ -25,6 +26,6 @@ namespace UnityHttpServer.Controller
         /// <param name="request">The request to consume</param>
         /// <returns></returns>
         [NotNull] 
-        public HttpResponse Consume([NotNull] HttpRequest request);
+        public Task<HttpResponse> ConsumeAsync([NotNull] HttpRequest request);
     }
 }

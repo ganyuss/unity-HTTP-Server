@@ -97,7 +97,8 @@ namespace UnityHttpServer
             
             try
             {
-                if (_controllerWrapper.TryConsume(request, out response))
+                response = await _controllerWrapper.TryConsumeAsync(request);
+                if (response != null)
                 {
                     await response.ApplyAsync(httpListenerContext.Response);
                     Logger?.Log($"Consumer found, code {response.StatusCode}");

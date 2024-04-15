@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Reflection;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityHttpServer.Routing;
 
@@ -42,15 +43,25 @@ namespace UnityHttpServer.Controller
             return _consumerAttribute.MatchRequest(request);
         }
 
-        public HttpResponse Consume(HttpRequest request)
+        public async Task<HttpResponse> ConsumeAsync(HttpRequest request)
         {
             object[] parameters = CreateReflectionParameters(MethodInfo, request);
 
             var output = MethodInfo.Invoke(Controller, parameters);
-            
-            bool isMethodVoid = MethodInfo.ReturnType == typeof(void);
-            if (isMethodVoid)
+
+            if (MethodInfo.ReturnType == typeof(void))
                 return HttpStatusCode.OK;
+
+            // If return value is awaitable, we await
+            if (MethodInfo.ReturnType.GetMethod(nameof(Task.GetAwaiter)) != null)
+            {
+                // Cannot use await (dynamic) here, to be compatible with IL2CPP
+                var dynamicAwaitable = new DynamicAwaitable(output);
+                output = await dynamicAwaitable;
+                
+                if (dynamicAwaitable.ReturnType == typeof(void))
+                    return HttpStatusCode.OK;
+            }
 
             return (HttpResponse)output;
         }

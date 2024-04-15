@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Reflection;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using UnityEngine;
 using UnityHttpServer.Routing;
@@ -32,8 +33,7 @@ namespace UnityHttpServer.Controller
             Logger?.Log($"Created {StaticConsumers.Count} static routes for controller {Controller.GetType()}");
         }
 
-        [ContractAnnotation("=>true; =>false, response: null")]
-        public bool TryConsume([NotNull] HttpRequest request, out HttpResponse response)
+        public async Task<HttpResponse> TryConsumeAsync([NotNull] HttpRequest request)
         {
             var allMethods = StaticConsumers.Concat(GetDynamicConsumers());
             foreach (var method in allMethods)
@@ -41,12 +41,10 @@ namespace UnityHttpServer.Controller
                 if (!method.Match(request))
                     continue;
             
-                response = method.Consume(request);
-                return true;
+                return await method.ConsumeAsync(request);
             }
 
-            response = default;
-            return false;
+            return default;
         }
 
         private IEnumerable<IHttpRequestConsumer> GetDynamicConsumers()

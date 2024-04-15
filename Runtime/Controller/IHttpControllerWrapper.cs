@@ -1,7 +1,11 @@
-﻿namespace UnityHttpServer.Controller
+﻿using System.Threading.Tasks;
+using JetBrains.Annotations;
+
+namespace UnityHttpServer.Controller
 {
     internal interface IHttpControllerWrapper
     {
-        public bool TryConsume(HttpRequest request, out HttpResponse response);
+        [ItemCanBeNull]
+        public Task<HttpResponse> TryConsumeAsync(HttpRequest request);
     }
 }
