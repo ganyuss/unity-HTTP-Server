@@ -12,7 +12,7 @@ namespace UnityHttpServer.Controller
         /// <summary>
         /// Return <c>true</c> if the consumer can consume the given HTTP request,
         /// <c>false</c> otherwise. <br /><br />
-        /// If <c>true</c> is returned, <see cref="Consume(HttpRequest)"/> will
+        /// If <c>true</c> is returned, <see cref="ConsumeAsync(HttpRequest)"/> will
         /// be called.
         /// </summary>
         /// <param name="request">The request to consume</param>
